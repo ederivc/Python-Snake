@@ -12,6 +12,21 @@ ORANGE = (231, 109, 25)
 BLUE = (68, 125, 226)
 GRID_SIZE = 20
 
+class Block:
+    def __init__(self):
+        self.position = (0, 0)
+        self.random_position()
+
+    def random_position(self):
+        self.position = [(random.randrange(0, 500, 20), random.randrange(0, 500, 20)) for i in range(6)]
+
+
+    def draw_food(self, window):
+        for _, value in enumerate(self.position):
+            pygame.draw.rect(window, BLACK, [value[0], value[1], 20, 20])
+
+        pygame.display.update()
+
 
 class Food:
     def __init__(self):
@@ -97,46 +112,47 @@ class Snake:
 
     def snake_movements(self, window):
         if self.actual_movement == "right":
-            x = self.snake_body[0][0] + self.velocity
-            x = self.check_border(x, "max_limit")
-            self.update_snake(x, "x", window)
+            temp = self.snake_body[0][0] + self.velocity
+            x = self.check_bounds(temp, "max_limit")
+            self.update_snake(x, "X", window)
 
         if self.actual_movement == "left":
-            x = self.snake_body[0][0] - self.velocity
-            x = self.check_border(x, "lower_limit")
-            self.update_snake(x, "x", window)
+            temp = self.snake_body[0][0] - self.velocity
+            x = self.check_bounds(temp, "lower_limit")
+            self.update_snake(x, "X", window)
 
         if self.actual_movement == "up":
-            y = self.snake_body[0][1] - self.velocity
-            y = self.check_border(y, "lower_limit")
-            self.update_snake(y, "y", window)   
+            temp = self.snake_body[0][1] - self.velocity
+            y = self.check_bounds(temp, "lower_limit")
+            self.update_snake(y, "Y", window)   
 
         if self.actual_movement == "down":
-            y = self.snake_body[0][1] + self.velocity
-            y = self.check_border(y, "max_limit")
-            self.update_snake(y, "y", window)
+            temp = self.snake_body[0][1] + self.velocity
+            y = self.check_bounds(temp, "max_limit")
+            self.update_snake(y, "Y", window)
  
 
-    def update_snake(self, value, cons, window):
-        if cons == "y":
-            self.snake_body.insert(0, [self.snake_body[0][0], value])
-            self.snake_body.pop()
-            draw(window)
-            self.draw_snake(window)
-
-        elif cons == "x":
+    def update_snake(self, value, key, window):
+        if key == "X":
             self.snake_body.insert(0, [value, self.snake_body[0][1]])
             self.snake_body.pop()
             draw(window)
             self.draw_snake(window)
 
         else:
-            self.snake_body.insert(0, list(value))
+            self.snake_body.insert(0, [self.snake_body[0][0], value])
+            self.snake_body.pop()
             draw(window)
             self.draw_snake(window)
 
 
-    def check_border(self, checked_value, limit):
+    def grow_snake(self, value, window):
+        self.snake_body.insert(0, list(value))
+        draw(window)
+        self.draw_snake(window)
+
+
+    def check_bounds(self, checked_value, limit):
         if limit == "max_limit":
             if checked_value > 480:
                 return 0
@@ -167,6 +183,7 @@ def message(score):
     except:
         pass
 
+
 def draw(window):
     window.fill(BLUE)
     x = 0
@@ -178,7 +195,21 @@ def draw(window):
         pygame.draw.line(window, BLACK, (x, 0), (x, WIDTH))
         pygame.draw.line(window, BLACK, (0, y), (HEIGHT, y))
 
-        
+
+def check_food(snake, food, window):
+    if snake.get_snake_head() == food.position:
+        snake.grow_snake(food.position, window)
+        food.random_position()
+        food.draw_food(window)
+        snake.lenght += 1
+
+
+def check_block(snake, block):
+    if snake.get_snake_head() in block.position:
+        block.random_position()
+        snake.reset()
+       
+
 def main():
     
     pygame.init()
@@ -190,6 +221,7 @@ def main():
     clock = pygame.time.Clock()
     snake = Snake()
     food = Food()
+    block = Block()
     
     myfont = pygame.font.SysFont('Helvetica', 20)
 
@@ -201,16 +233,14 @@ def main():
         draw(window)
         snake.move_snake(window)
 
-        if snake.get_snake_head() == food.position:
-            snake.update_snake(food.position, "w", window)
-            food.random_position()
-            food.draw_food(window)
-            snake.lenght += 1
-
+        check_block(snake, block)
+        check_food(snake, food, window)
         
         text = myfont.render(f'Score {snake.lenght}', True, BLACK)
         window.blit(text, (5, 10))
         
         food.draw_food(window)
+        block.draw_food(window)
+
 
 main()
