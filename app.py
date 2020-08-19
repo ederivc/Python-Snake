@@ -18,7 +18,7 @@ class Block:
         self.random_position()
 
     def random_position(self):
-        self.position = [(random.randrange(0, 500, 20), random.randrange(0, 500, 20)) for i in range(6)]
+        self.position = [(random.randrange(0, 500, 20), random.randrange(0, 500, 20)) for i in range(7)]
 
 
     def draw_food(self, window):
@@ -51,8 +51,8 @@ class Snake:
                                     "left": ["right"],
                                     "up": ["down"],
                                     "down": ["up"]}
-        self.get_snake_head()
-
+        self.best_score = 1
+        self.temp_score = 1
 
     def move_snake(self, window):
         for event in pygame.event.get():
@@ -87,6 +87,9 @@ class Snake:
 
                     self.actual_movement = "up"
 
+                if event.key == pygame.K_p:
+                    pause_game(window)
+
 
         self.snake_movements(window)
 
@@ -107,6 +110,11 @@ class Snake:
         message(self.lenght) 
         self.snake_body = [[220,220]]
         self.actual_movement = random.choice(["right", "left", "up", "down"])
+
+        if self.lenght > self.temp_score:
+            self.temp_score = self.lenght
+            self.best_score = self.lenght
+        
         self.lenght = 1
 
 
@@ -198,10 +206,18 @@ def draw(window):
 
 def check_food(snake, food, window):
     if snake.get_snake_head() == food.position:
+
         snake.grow_snake(food.position, window)
+
         food.random_position()
         food.draw_food(window)
+
         snake.lenght += 1
+
+        if snake.lenght > snake.best_score:
+            snake.best_score += 1
+
+        print(food.position)
 
 
 def check_block(snake, block):
@@ -210,7 +226,49 @@ def check_block(snake, block):
         snake.reset()
        
 
-def main():
+def start_menu(start, window):
+    window.fill(WHITE)
+    pygame.display.update()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key:
+                #start = False
+                return False
+
+    return True
+
+
+def pause_game(window):
+
+    paused = True
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    paused = False
+
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
+
+                elif event.key == pygame.K_r:
+                    pass
+
+        window.fill(ORANGE)
+        pygame.display.update()
+   
+
+
+"""def main():
     
     pygame.init()
 
@@ -224,23 +282,39 @@ def main():
     block = Block()
     
     myfont = pygame.font.SysFont('Helvetica', 20)
-
+    start = True
 
     while True:
 
         clock.tick(11)
 
+        while start:
+            start = start_menu(start, window)
+                        
+
         draw(window)
         snake.move_snake(window)
+
 
         check_block(snake, block)
         check_food(snake, food, window)
         
         text = myfont.render(f'Score {snake.lenght}', True, BLACK)
-        window.blit(text, (5, 10))
-        
-        food.draw_food(window)
+        window.blit(text, (5, 0))
+        text2 = myfont.render(f'Best score {snake.best_score}', True, BLACK)
+        window.blit(text2, (5, 20))
+
         block.draw_food(window)
+        while True:
+            if food.random_position in block.position:
+                print(f"Here, food {food.position} , block {block.position}")
+                food.random_position
+                print(f"Final {food.position}")
+
+            break
+        food.draw_food(window)
+
+        #pause_game(start)"""
 
 
-main()
+#main()
