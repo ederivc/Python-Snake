@@ -4,13 +4,20 @@ import pygame
 import tkinter as tk
 from tkinter import messagebox as mBox
 
-WIDTH = 500
-HEIGHT = 500
-WHITE = (255, 255, 255)
+WIDTH = 700
+HEIGHT = 700
+#WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 ORANGE = (231, 109, 25)
 BLUE = (68, 125, 226)
+RED = (246, 49, 13)
 GRID_SIZE = 20
+
+start_image = pygame.image.load("snake.png")
+pause_image = pygame.image.load("pause.png")
+wallpaper = pygame.image.load("grass.png")
+apple = pygame.image.load("apple.png")
+
 
 class Block:
     def __init__(self):
@@ -18,7 +25,7 @@ class Block:
         self.random_position()
 
     def random_position(self):
-        self.position = [(random.randrange(0, 500, 20), random.randrange(0, 500, 20)) for i in range(7)]
+        self.position = [(random.randrange(0, 500, 20), random.randrange(0, 500, 20)) for i in range(20)]
 
 
     def draw_food(self, window):
@@ -37,7 +44,8 @@ class Food:
         self.position = (random.randrange(0, 500, 20), random.randrange(0, 500, 20))
 
     def draw_food(self, window):
-        pygame.draw.rect(window, WHITE, [self.position[0], self.position[1] , 20, 20])
+        window.blit(apple, (self.position[0], self.position[1]))
+        #pygame.draw.rect(window, RED, [self.position[0], self.position[1] , 20, 20])
         pygame.display.update()
         
 
@@ -95,8 +103,12 @@ class Snake:
 
 
     def draw_snake(self, window):
-        for body in self.snake_body:
-            pygame.draw.rect(window, ORANGE, [body[0], body[1], 20, 20])
+        for idx, body in enumerate(self.snake_body):
+            if idx == 0:
+                pygame.draw.rect(window, RED, [body[0], body[1], 20, 20])
+                continue
+
+            pygame.draw.rect(window, BLUE, [body[0], body[1], 20, 20])
         
         self.check_error(window)
 
@@ -162,13 +174,13 @@ class Snake:
 
     def check_bounds(self, checked_value, limit):
         if limit == "max_limit":
-            if checked_value > 480:
+            if checked_value > 680:
                 return 0
             else:
                 return checked_value
         else:
             if checked_value < 0:
-                return 480
+                return 680
             else:
                 return checked_value
 
@@ -193,7 +205,7 @@ def message(score):
 
 
 def draw(window):
-    window.fill(BLUE)
+    window.blit(wallpaper, (0, 0))
     x = 0
     y = 0
     for _ in range(WIDTH):
@@ -227,7 +239,8 @@ def check_block(snake, block):
        
 
 def start_menu(start, window):
-    window.fill(WHITE)
+    #window.fill(WHITE)
+    window.blit(start_image, (0, 0))
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -263,7 +276,8 @@ def pause_game(window):
                 elif event.key == pygame.K_r:
                     pass
 
-        window.fill(ORANGE)
+        #window.fill(ORANGE)
+        window.blit(pause_image, (0, 0))
         pygame.display.update()
    
 

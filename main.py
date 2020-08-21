@@ -1,10 +1,19 @@
+import pygame
 from app import *
+
+
+file = "music.ogg"
+
 
 if __name__ == "__main__":
     pygame.init()
 
+    #pygame.mixer_music.init()
+    pygame.mixer.music.load(file)
+    pygame.mixer.music.play(-1)
+
     window = pygame.display.set_mode((WIDTH, HEIGHT))
-    window.fill(BLUE)
+
     pygame.display.set_caption("Snake Game")
 
     clock = pygame.time.Clock()
@@ -12,7 +21,7 @@ if __name__ == "__main__":
     food = Food()
     block = Block()
     
-    myfont = pygame.font.SysFont('Helvetica', 20)
+    myfont = pygame.font.SysFont('Helvetica', 28)
     start = True
 
     while True:
@@ -33,18 +42,17 @@ if __name__ == "__main__":
         text = myfont.render(f'Score {snake.lenght}', True, BLACK)
         window.blit(text, (5, 0))
         text2 = myfont.render(f'Best score {snake.best_score}', True, BLACK)
-        window.blit(text2, (5, 20))
+        window.blit(text2, (5, 30))
 
         block.draw_food(window)
 
         while True:
-            if food.random_position in block.position:
+            if food.position in block.position:
                 print(f"Here, food {food.position} , block {block.position}")
-                food.random_position
+                food.random_position()
                 print(f"Final {food.position}")
 
             break
 
         food.draw_food(window)
 
-        #pause_game(start)
